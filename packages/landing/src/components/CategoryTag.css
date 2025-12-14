@@ -1,0 +1,33 @@
+.category-tag {
+  display: inline-flex;
+  height: 30px;
+  padding: 6px 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 4px;
+  border: none;
+  background: #F3F4F6;
+  color: #6B7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.category-tag:hover {
+  background: #E5E7EB;
+  color: #4B5563;
+}
+
+.category-tag-active {
+  background: #E7EFFF;
+  color: #3F7BFC;
+}
+
+.category-tag-active:hover {
+  background: #D1E0FF;
+  color: #2563EB;
+}
+

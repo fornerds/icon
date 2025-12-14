@@ -1,0 +1,20 @@
+{
+  "name": "fornerds-icon-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:admin": "cd packages/admin && npm run dev",
+    "dev:landing": "cd packages/landing && npm run dev",
+    "build:package": "cd packages/icon-package && npm run build",
+    "build:admin": "cd packages/admin && npm run build",
+    "build:landing": "cd packages/landing && npm run build"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}
+

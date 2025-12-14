@@ -1,0 +1,56 @@
+// This plugin allows you to upload selected icons to the Fornerds Icon system
+
+// Note: UI HTML will be loaded from ui.html file in dist folder
+figma.showUI('<p style="padding: 20px;">Loading...</p>', { width: 400, height: 600 });
+
+figma.ui.onmessage = async (msg) => {
+  if (msg.type === 'export-icon') {
+    const selection = figma.currentPage.selection;
+
+    if (selection.length === 0) {
+      figma.ui.postMessage({
+        type: 'error',
+        message: '아이콘을 선택해주세요.',
+      });
+      return;
+    }
+
+    const node = selection[0];
+
+    if (node.type !== 'VECTOR' && node.type !== 'COMPONENT' && node.type !== 'INSTANCE') {
+      figma.ui.postMessage({
+        type: 'error',
+        message: '벡터, 컴포넌트, 또는 인스턴스를 선택해주세요.',
+      });
+      return;
+    }
+
+    try {
+      // SVG로 export
+      const svg = await node.exportAsync({ format: 'SVG' });
+      const svgString = new TextDecoder().decode(svg);
+
+      // 노드 이름에서 정보 추출
+      const nodeName = node.name;
+      const iconName = `icon/${nodeName.toLowerCase().replace(/\s+/g, '/')}`;
+
+      figma.ui.postMessage({
+        type: 'icon-exported',
+        data: {
+          name: iconName,
+          svg: svgString,
+          nodeName: nodeName,
+        },
+      });
+    } catch (error) {
+      figma.ui.postMessage({
+        type: 'error',
+        message: `Export 실패: ${error}`,
+      });
+    }
+  }
+
+  if (msg.type === 'close') {
+    figma.closePlugin();
+  }
+};

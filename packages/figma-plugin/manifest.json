@@ -1,0 +1,12 @@
+{
+  "name": "Fornerds Icon Uploader",
+  "id": "fornerds-icon-uploader",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["*"]
+  }
+}
+
