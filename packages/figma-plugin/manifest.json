@@ -6,7 +6,8 @@
   "ui": "dist/ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["*"]
+    "allowedDomains": ["*"],
+    "reasoning": "This plugin needs to communicate with the Fornerds Icon backend API to upload icons and fetch categories. The backend URL may vary depending on deployment environment (Vercel, localhost, etc.), so all domains are allowed for flexibility."
   }
 }
 

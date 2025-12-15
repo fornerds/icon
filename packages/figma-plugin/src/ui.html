@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <title>Fornerds Icon Uploader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
       * {
         margin: 0;
@@ -12,21 +15,56 @@
 
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        padding: 20px;
-        background: #ffffff;
-        color: #191f28;
+        padding: 0;
+        background: rgba(8, 8, 10, 0.40);
+        color: white;
+        min-height: 100vh;
+      }
+
+      .header {
+        background: rgba(8, 8, 10, 0.80);
+        backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo-image {
+        height: 28px;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+      }
+
+      .logo-text {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: white;
+        font-family: 'M PLUS Rounded 1c', sans-serif;
       }
 
       .container {
         display: flex;
         flex-direction: column;
         gap: 20px;
+        padding: 20px;
       }
 
       h1 {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 700;
         margin-bottom: 8px;
+        color: white;
       }
 
       .section {
@@ -38,7 +76,15 @@
       .section-title {
         font-size: 14px;
         font-weight: 600;
-        color: #191f28;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 8px;
       }
 
       input,
@@ -46,10 +92,19 @@
       select {
         width: 100%;
         padding: 10px 12px;
-        border: 1px solid #e5e8eb;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 6px;
         font-size: 14px;
         font-family: inherit;
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        backdrop-filter: blur(10px);
+        transition: all 0.2s ease;
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: rgba(255, 255, 255, 0.4);
       }
 
       input:focus,
@@ -57,7 +112,8 @@
       select:focus {
         outline: none;
         border-color: #3182f6;
-        box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.2);
       }
 
       textarea {
@@ -91,13 +147,14 @@
       }
 
       .button-secondary {
-        background: #f7f8fa;
-        color: #191f28;
-        border: 1px solid #e5e8eb;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
       }
 
       .button-secondary:hover {
-        background: #e5e8eb;
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
       }
 
       .button:disabled {
@@ -123,8 +180,8 @@
       }
 
       .status-loading {
-        background: #f7f8fa;
-        color: #8b95a1;
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
       }
 
       .hidden {
@@ -132,10 +189,11 @@
       }
 
       .preview {
-        border: 1px solid #e5e8eb;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 6px;
         padding: 20px;
-        background: #f7f8fa;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -149,8 +207,14 @@
     </style>
   </head>
   <body>
+    <div class="header">
+      <div class="logo-container">
+        <img src="data:image/png;base64,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" alt="Fornerds Logo" class="logo-image" />
+        <div class="logo-text">Fornerds Icon</div>
+      </div>
+    </div>
     <div class="container">
-      <h1>Fornerds Icon Uploader</h1>
+      <h1>아이콘 업로드</h1>
 
       <div class="section">
         <button class="button button-primary" id="export-btn">
@@ -207,9 +271,21 @@
     </div>
 
     <script>
-      const API_URL = 'http://localhost:3001/api/icons/from-figma';
-      const CATEGORIES_URL = 'http://localhost:3001/api/categories';
-      const API_TOKEN = prompt('API Token을 입력하세요:') || '';
+      // API 설정 (환경에 맞게 수정 가능)
+      const API_BASE_URL = 'https://fornerds-icon-backend.vercel.app';
+      const API_URL = `${API_BASE_URL}/api/icons/from-figma`;
+      const CATEGORIES_URL = `${API_BASE_URL}/api/categories`;
+      
+      // API Token 저장소 (localStorage 사용)
+      let API_TOKEN = localStorage.getItem('figma_api_token') || '';
+      
+      // Token이 없으면 입력받기
+      if (!API_TOKEN) {
+        API_TOKEN = prompt('API Token을 입력하세요:\n(Vercel Dashboard → Backend → Environment Variables → API_TOKEN)') || '';
+        if (API_TOKEN) {
+          localStorage.setItem('figma_api_token', API_TOKEN);
+        }
+      }
 
       let currentSvg = '';
       let categories = [];
@@ -217,20 +293,32 @@
       // 카테고리 목록 가져오기
       async function loadCategories() {
         try {
+          const categorySelect = document.getElementById('category');
+          categorySelect.innerHTML = '<option value="">로딩 중...</option>';
+          
           const response = await fetch(CATEGORIES_URL);
-          if (response.ok) {
-            categories = await response.json();
-            const categorySelect = document.getElementById('category');
-            categorySelect.innerHTML = '<option value="">선택 안함</option>';
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          categories = await response.json();
+          categorySelect.innerHTML = '<option value="">선택 안함</option>';
+          
+          if (categories && categories.length > 0) {
             categories.forEach((cat) => {
               const option = document.createElement('option');
               option.value = cat.slug;
               option.textContent = cat.name;
               categorySelect.appendChild(option);
             });
+          } else {
+            categorySelect.innerHTML = '<option value="">카테고리 없음</option>';
           }
         } catch (error) {
           console.error('Error loading categories:', error);
+          const categorySelect = document.getElementById('category');
+          categorySelect.innerHTML = '<option value="">로딩 실패 (선택 안함)</option>';
+          showStatus(`카테고리 로딩 실패: ${error.message}`, 'error');
         }
       }
 
@@ -256,6 +344,11 @@
           return;
         }
 
+        if (!API_TOKEN) {
+          showStatus('API Token이 설정되지 않았습니다. 페이지를 새로고침하여 입력해주세요.', 'error');
+          return;
+        }
+
         try {
           showStatus('업로드 중...', 'loading');
           document.getElementById('upload-btn').disabled = true;
@@ -276,13 +369,14 @@
           });
 
           if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Upload failed');
+            const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+            throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
           }
 
           const data = await response.json();
           showStatus(`성공! 아이콘이 업로드되었습니다. (ID: ${data.id})`, 'success');
         } catch (error) {
+          console.error('Upload error:', error);
           showStatus(`에러: ${error.message}`, 'error');
         } finally {
           document.getElementById('upload-btn').disabled = false;
