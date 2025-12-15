@@ -20,7 +20,6 @@
 
       .header {
         background: rgba(8, 8, 10, 0.80);
-        backdrop-filter: blur(20px) saturate(180%);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         padding: 16px 20px;
         display: flex;
@@ -535,21 +534,25 @@
 
         // DOM 로드 완료 후 초기화
         function startInitialization() {
-          // 약간의 지연을 두어 DOM이 완전히 준비되도록 함
-          setTimeout(() => {
+          try {
+            console.log('Starting initialization...');
+            initialize();
+            console.log('Initialization complete');
+          } catch (error) {
+            console.error('Failed to initialize:', error);
             try {
-              initialize();
-            } catch (error) {
-              console.error('Failed to initialize:', error);
-              showStatus('초기화 중 오류가 발생했습니다.', 'error');
+              showStatus('초기화 중 오류가 발생했습니다: ' + error.message, 'error');
+            } catch (e) {
+              console.error('Could not show error status:', e);
             }
-          }, 100);
+          }
         }
 
+        // DOM이 준비되면 초기화
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', startInitialization);
         } else {
-          // DOM이 이미 로드된 경우
+          // DOM이 이미 로드된 경우 즉시 실행
           startInitialization();
         }
       })(); // IIFE 종료
