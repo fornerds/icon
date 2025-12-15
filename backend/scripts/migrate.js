@@ -1,5 +1,16 @@
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import pool from '../db.js';
 import bcrypt from 'bcrypt';
+
+// 현재 파일의 디렉토리 경로 가져오기
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// 환경 변수 로드 (.env 파일 경로 명시)
+const envPath = join(__dirname, '..', '.env');
+dotenv.config({ path: envPath, override: true });
 
 const createTables = async () => {
   const client = await pool.connect();
@@ -121,19 +132,44 @@ const createTables = async () => {
       );
     }
 
-    // 기본 관리자 계정 생성 (환경 변수에서 가져오거나 기본값 사용)
+    // 기본 관리자 계정 생성/업데이트 (환경 변수에서 가져오거나 기본값 사용)
     const adminUsername = process.env.ADMIN_USERNAME || 'admin';
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@fornerds.com';
     const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeThisPassword123!';
     
+    // 비밀번호 해싱 (bcrypt 사용)
     const passwordHash = await bcrypt.hash(adminPassword, 10);
     
-    await client.query(
-      `INSERT INTO users (username, email, password_hash, is_active) 
-       VALUES ($1, $2, $3, TRUE) 
-       ON CONFLICT (username) DO NOTHING`,
-      [adminUsername, adminEmail, passwordHash]
+    // 기존 계정 확인
+    const existingUser = await client.query(
+      'SELECT id FROM users WHERE username = $1',
+      [adminUsername]
     );
+    
+    if (existingUser.rows.length > 0) {
+      // 기존 계정이 있으면 비밀번호 업데이트
+      await client.query(
+        `UPDATE users 
+         SET email = $1, password_hash = $2, updated_at = NOW() 
+         WHERE username = $3`,
+        [adminEmail, passwordHash, adminUsername]
+      );
+      console.log(`📝 Admin account updated:`);
+    } else {
+      // 새 계정 생성
+      await client.query(
+        `INSERT INTO users (username, email, password_hash, is_active) 
+         VALUES ($1, $2, $3, TRUE)`,
+        [adminUsername, adminEmail, passwordHash]
+      );
+      console.log(`📝 Default admin account created:`);
+    }
+    
+    console.log(`   Username: ${adminUsername}`);
+    console.log(`   Email: ${adminEmail}`);
+    console.log(`   Password: ${adminPassword} (hashed and stored)`);
+    console.log(`   Password Hash: ${passwordHash.substring(0, 20)}...`);
+    console.log(`\n⚠️  Please change the default password after first login!`);
 
     await client.query('COMMIT');
     console.log('✅ Database tables created successfully');
