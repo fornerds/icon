@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const API_URL = process.env.API_URL || 'http://localhost:3001/api/icons/export/build';
+const API_URL = process.env.API_URL || 'https://fornerds-icon-backend.vercel.app/api/icons/export/build';
 
 async function fetchIcons() {
   try {
@@ -99,6 +99,8 @@ async function build() {
   const indexContent = generateIndex(icons);
   fs.writeFileSync(path.join(distDir, 'index.tsx'), indexContent);
   fs.writeFileSync(path.join(distDir, 'index.js'), indexContent.replace(/\.tsx/g, '.js'));
+  // ESM version (same content for now)
+  fs.writeFileSync(path.join(distDir, 'index.esm.js'), indexContent.replace(/\.tsx/g, '.js'));
   console.log('✅ Generated index file\n');
 
   // Generate types

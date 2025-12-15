@@ -1,0 +1,29 @@
+# Source files
+src/
+scripts/
+tsconfig.json
+
+# Development files
+node_modules/
+*.log
+.DS_Store
+
+# Build artifacts (keep dist/)
+*.tsx
+*.ts
+!dist/**/*.d.ts
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
