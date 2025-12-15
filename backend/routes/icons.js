@@ -5,6 +5,22 @@ import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
 
+// tags 파싱 헬퍼 함수 (PostgreSQL JSONB는 이미 파싱되어 있지만 안전하게 처리)
+function parseTags(tags) {
+  if (!tags) return null;
+  if (Array.isArray(tags)) return tags;
+  if (typeof tags === 'object') return tags;
+  if (typeof tags === 'string') {
+    try {
+      return JSON.parse(tags);
+    } catch (e) {
+      // JSON이 아닌 경우 쉼표로 구분된 문자열로 처리
+      return tags.split(',').map(t => t.trim()).filter(Boolean);
+    }
+  }
+  return null;
+}
+
 // GET /api/icons - 아이콘 목록 조회
 router.get('/', async (req, res) => {
   try {
@@ -42,7 +58,7 @@ router.get('/', async (req, res) => {
     // JSON 필드는 이미 파싱되어 있음 (JSONB)
     const parsedRows = result.rows.map(row => ({
       ...row,
-      tags: row.tags || null,
+      tags: row.tags || null, // JSONB는 이미 파싱되어 있음
     }));
 
     res.json(parsedRows);
@@ -113,6 +129,8 @@ router.post(
       const { name, slug, svg, tags, category } = req.body;
       const userId = req.user?.id || 1;
 
+      console.log('📝 Creating icon:', { name, slug, category, tagsCount: tags?.length || 0 });
+
       // slug 중복 확인
       const checkResult = await pool.query('SELECT id FROM icons WHERE slug = $1', [slug]);
 
@@ -120,12 +138,28 @@ router.post(
         return res.status(409).json({ error: 'Slug already exists' });
       }
 
+      // tags 처리: 이미 배열이면 그대로, 아니면 배열로 변환
+      const tagsArray = Array.isArray(tags) ? tags : (tags ? [tags] : []);
+      const tagsJson = JSON.stringify(tagsArray);
+
+      // category가 문자열인 경우, categories 테이블에서 확인
+      let categoryValue = category || null;
+      if (category && typeof category === 'string') {
+        const categoryCheck = await pool.query('SELECT slug FROM categories WHERE slug = $1', [category]);
+        if (categoryCheck.rows.length === 0) {
+          console.warn(`⚠️ Category "${category}" not found in database, using null`);
+          categoryValue = null;
+        } else {
+          categoryValue = category;
+        }
+      }
+
       // icons 테이블에 저장
       const insertResult = await pool.query(
         `INSERT INTO icons (name, slug, latest_version, svg, tags, category, created_by, updated_by)
          VALUES ($1, $2, 1, $3, $4, $5, $6, $7)
          RETURNING *`,
-        [name, slug, svg, JSON.stringify(tags || []), category || null, userId, userId]
+        [name, slug, svg, tagsJson, categoryValue, userId, userId]
       );
 
       const iconId = insertResult.rows[0].id;
@@ -134,19 +168,30 @@ router.post(
       await pool.query(
         `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
          VALUES ($1, 1, $2, $3, $4, $5, 'CREATE', $6)`,
-        [iconId, name, svg, JSON.stringify(tags || []), category || null, userId]
+        [iconId, name, svg, tagsJson, categoryValue, userId]
       );
 
       const newIcon = insertResult.rows[0];
       const parsedIcon = {
         ...newIcon,
-        tags: newIcon.tags ? JSON.parse(newIcon.tags) : null,
+        tags: parseTags(newIcon.tags),
       };
 
+      console.log('✅ Icon created successfully:', iconId);
       res.status(201).json(parsedIcon);
     } catch (error) {
-      console.error('Error creating icon:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('❌ Error creating icon:', error);
+      console.error('   Error details:', {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        stack: error.stack,
+      });
+      res.status(500).json({ 
+        error: 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.detail : undefined,
+      });
     }
   }
 );
@@ -213,7 +258,7 @@ router.patch(
           newVersion,
           name || currentIcon.name,
           svg || currentIcon.svg,
-          JSON.stringify(tags !== undefined ? tags : (currentIcon.tags ? JSON.parse(currentIcon.tags) : [])),
+          JSON.stringify(tags !== undefined ? tags : (currentIcon.tags ? (Array.isArray(currentIcon.tags) ? currentIcon.tags : parseTags(currentIcon.tags)) : [])),
           category !== undefined ? category : currentIcon.category,
           userId
         ]
@@ -224,7 +269,7 @@ router.patch(
 
       const parsedIcon = {
         ...updated,
-        tags: updated.tags ? JSON.parse(updated.tags) : null,
+        tags: parseTags(updated.tags),
       };
 
       res.json(parsedIcon);
@@ -309,7 +354,7 @@ router.patch('/:id/restore', authenticateToken, async (req, res) => {
 
     const parsedIcon = {
       ...restored,
-      tags: restored.tags ? JSON.parse(restored.tags) : null,
+        tags: parseTags(restored.tags),
     };
 
     res.json(parsedIcon);
@@ -410,7 +455,7 @@ router.post(
 
         const parsedIcon = {
           ...updated,
-          tags: updated.tags ? JSON.parse(updated.tags) : null,
+          tags: parseTags(updated.tags),
         };
 
         return res.json(parsedIcon);
@@ -434,7 +479,7 @@ router.post(
         const newIcon = insertResult.rows[0];
         const parsedIcon = {
           ...newIcon,
-          tags: newIcon.tags ? JSON.parse(newIcon.tags) : null,
+          tags: parseTags(newIcon.tags),
         };
 
         return res.status(201).json(parsedIcon);
@@ -455,7 +500,7 @@ router.get('/export/build', async (req, res) => {
     
     const parsedRows = result.rows.map(row => ({
       ...row,
-      tags: row.tags ? JSON.parse(row.tags) : null,
+      tags: parseTags(row.tags),
     }));
 
     res.json(parsedRows);
