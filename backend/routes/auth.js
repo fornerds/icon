@@ -62,7 +62,12 @@ router.post(
       });
     } catch (error) {
       console.error('Error during login:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('Error stack:', error.stack);
+      res.status(500).json({ 
+        error: 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
 );

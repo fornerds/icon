@@ -17,7 +17,7 @@ function ProtectedRoute({ children }) {
       }
 
       try {
-        await client.get('/auth/me');
+        await client.get('/api/auth/me');
         setIsAuthenticated(true);
       } catch (error) {
         localStorage.removeItem('token');

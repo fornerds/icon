@@ -1,11 +1,24 @@
 // Vercel Serverless Functions용 진입점
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import iconRoutes from '../routes/icons.js';
 import authRoutes from '../routes/auth.js';
 import categoryRoutes from '../routes/categories.js';
 
+// 환경 변수 로드
+dotenv.config();
+
 const app = express();
+
+// 에러 핸들링 미들웨어
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  });
+});
 
 // CORS 설정 - Vercel 배포 시 프론트엔드 도메인 허용
 const allowedOrigins = [
