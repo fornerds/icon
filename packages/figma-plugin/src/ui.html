@@ -404,6 +404,8 @@
       // DOM이 완전히 로드된 후 초기화
       function initialize() {
         try {
+          console.log('Initializing plugin UI...');
+          
           // API Token 가져오기
           getApiToken();
 
@@ -421,12 +423,18 @@
                 showStatus('Export 버튼 오류: ' + error.message, 'error');
               }
             });
+          } else {
+            console.error('Export button not found');
           }
 
           const uploadBtn = document.getElementById('upload-btn');
           if (uploadBtn) {
             uploadBtn.addEventListener('click', handleUpload);
+          } else {
+            console.error('Upload button not found');
           }
+          
+          console.log('Initialization complete');
         } catch (error) {
           console.error('Initialization error:', error);
           showStatus(`초기화 실패: ${error.message}`, 'error');
@@ -532,30 +540,50 @@
         }
       };
 
-        // DOM 로드 완료 후 초기화
-        function startInitialization() {
-          try {
-            console.log('Starting initialization...');
-            initialize();
-            console.log('Initialization complete');
-          } catch (error) {
-            console.error('Failed to initialize:', error);
-            try {
-              showStatus('초기화 중 오류가 발생했습니다: ' + error.message, 'error');
-            } catch (e) {
-              console.error('Could not show error status:', e);
-            }
-          }
-        }
+      // 메시지 핸들러 (블로그 글 참고)
+      window.onmessage = (event) => {
+        try {
+          const msg = event.data?.pluginMessage;
+          if (!msg) return;
 
-        // DOM이 준비되면 초기화
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', startInitialization);
-        } else {
-          // DOM이 이미 로드된 경우 즉시 실행
-          startInitialization();
+          if (msg.type === 'icon-exported') {
+            const { name, svg, nodeName } = msg.data || {};
+            if (!name || !svg) {
+              showStatus('Export 데이터가 올바르지 않습니다.', 'error');
+              return;
+            }
+
+            currentSvg = svg;
+
+            const nameInput = document.getElementById('name');
+            const svgTextarea = document.getElementById('svg');
+            const preview = document.getElementById('preview');
+            const formSection = document.getElementById('form-section');
+            const uploadBtn = document.getElementById('upload-btn');
+
+            if (nameInput) nameInput.value = name;
+            if (svgTextarea) svgTextarea.value = svg;
+            if (preview) preview.innerHTML = svg;
+            if (formSection) formSection.classList.remove('hidden');
+            if (uploadBtn) uploadBtn.disabled = false;
+            
+            hideStatus();
+          } else if (msg.type === 'error') {
+            showStatus(msg.message || '알 수 없는 오류', 'error');
+          }
+        } catch (error) {
+          console.error('Message handler error:', error);
+          showStatus(`메시지 처리 오류: ${error.message}`, 'error');
         }
-      })(); // IIFE 종료
+      };
+
+      // DOM이 준비되면 초기화
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+      } else {
+        // DOM이 이미 로드된 경우 즉시 실행
+        initialize();
+      }
     </script>
   </body>
 </html>
