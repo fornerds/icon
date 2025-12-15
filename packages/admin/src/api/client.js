@@ -10,7 +10,7 @@ if (!API_BASE_URL) {
 }
 
 const client = axios.create({
-  baseURL: API_BASE_URL || 'https://fornerds-icon-backend.vercel.app',
+  baseURL: (API_BASE_URL || 'https://fornerds-icon-backend.vercel.app') + '/api',
   headers: {
     'Content-Type': 'application/json',
   },

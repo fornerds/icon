@@ -18,7 +18,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const { data } = await client.post('/api/auth/login', formData);
+      const { data } = await client.post('/auth/login', formData);
       
       // 토큰 저장
       localStorage.setItem('token', data.token);
