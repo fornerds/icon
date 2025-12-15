@@ -23,13 +23,22 @@ if (fs.existsSync(uiHtmlPath)) {
   console.warn('⚠️  ui.html not found');
 }
 
-// manifest.json을 dist로 복사
+// manifest.json을 dist로 복사하고 경로 수정 (dist 폴더 기준으로)
 const manifestPath = path.join(__dirname, '../manifest.json');
 const distManifestPath = path.join(distDir, 'manifest.json');
 
 if (fs.existsSync(manifestPath)) {
-  fs.copyFileSync(manifestPath, distManifestPath);
-  console.log('✅ Copied manifest.json to dist');
+  // manifest.json 읽기
+  const manifestContent = fs.readFileSync(manifestPath, 'utf8');
+  const manifest = JSON.parse(manifestContent);
+  
+  // dist 폴더 기준으로 경로 수정
+  manifest.main = 'code.js';  // dist/code.js -> code.js
+  manifest.ui = 'ui.html';    // dist/ui.html -> ui.html
+  
+  // 수정된 manifest.json을 dist에 저장
+  fs.writeFileSync(distManifestPath, JSON.stringify(manifest, null, 2));
+  console.log('✅ Copied and updated manifest.json to dist');
 } else {
   console.warn('⚠️  manifest.json not found');
 }

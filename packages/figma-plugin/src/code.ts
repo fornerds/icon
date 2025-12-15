@@ -1,7 +1,8 @@
 // This plugin allows you to upload selected icons to the Fornerds Icon system
 
-// Note: UI HTML will be loaded from ui.html file in dist folder
-figma.showUI('<p style="padding: 20px;">Loading...</p>', { width: 400, height: 600 });
+// UI HTML will be loaded from ui.html file specified in manifest.json
+// Empty string allows manifest.json's "ui" field to be used
+figma.showUI('', { width: 400, height: 600 });
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'export-icon') {
