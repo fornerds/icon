@@ -8,9 +8,18 @@ export const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('❌ JWT_SECRET is not set in environment variables');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  jwt.verify(token, jwtSecret, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: 'Forbidden' });
+      console.error('❌ JWT verification failed:', err.message);
+      console.error('   Token:', token.substring(0, 20) + '...');
+      console.error('   JWT_SECRET exists:', !!jwtSecret);
+      return res.status(403).json({ error: 'Forbidden', details: err.message });
     }
     req.user = user;
     next();

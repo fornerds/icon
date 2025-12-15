@@ -164,7 +164,14 @@ function CreateIconModal({ onClose, onSuccess }) {
       onSuccess();
     } catch (error) {
       console.error('Error creating icon:', error);
-      alert('아이콘 생성에 실패했습니다.');
+      if (error.response?.status === 403 || error.response?.status === 401) {
+        alert('인증이 만료되었습니다. 다시 로그인해주세요.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        alert('아이콘 생성에 실패했습니다: ' + (error.response?.data?.error || error.message));
+      }
     }
   };
 
