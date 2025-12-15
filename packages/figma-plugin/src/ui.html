@@ -1,590 +1,203 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Fornerds Icon Uploader</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="utf-8">
+  <title>Fornerds Icon Uploader</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        padding: 0;
-        background: rgba(8, 8, 10, 0.40);
-        color: white;
-        min-height: 100vh;
-      }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: rgba(8, 8, 10, 0.40);
+      color: white;
+    }
 
-      .header {
-        background: rgba(8, 8, 10, 0.80);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 16px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    .header {
+      background: rgba(8, 8, 10, 0.80);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px 20px;
+      margin: -20px -20px 20px -20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .logo-container {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 12px;
-      }
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+    }
 
-      .logo-image {
-        height: 28px;
-        width: auto;
-        object-fit: contain;
-        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-      }
+    h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: white;
+    }
 
-      .logo-text {
-        font-size: 20px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        color: white;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-      }
+    .button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #3182f6;
+      color: white;
+      width: 100%;
+      margin-bottom: 10px;
+    }
 
-      .container {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        padding: 20px;
-      }
+    .button:hover {
+      background: #1b64da;
+    }
 
-      h1 {
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: white;
-      }
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-      .section {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
+    .status {
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+    }
 
-      .section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.9);
-      }
+    .status-error {
+      background: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+    }
 
-      label {
-        display: block;
-        font-size: 14px;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 8px;
-      }
+    .status-success {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+    }
 
-      input,
-      textarea,
-      select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        font-size: 14px;
-        font-family: inherit;
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
-        transition: all 0.2s ease;
-      }
+    .hidden {
+      display: none;
+    }
 
-      input::placeholder,
-      textarea::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-      }
+    .form-section {
+      margin-top: 20px;
+    }
 
-      input:focus,
-      textarea:focus,
-      select:focus {
-        outline: none;
-        border-color: #3182f6;
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.2);
-      }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+      margin-top: 12px;
+    }
 
-      textarea {
-        resize: vertical;
-        min-height: 100px;
-        font-family: 'SF Mono', Monaco, monospace;
-        font-size: 12px;
-      }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      margin-bottom: 12px;
+    }
 
-      .tags-input {
-        font-size: 14px;
-      }
+    textarea {
+      min-height: 100px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-text">Fornerds Icon</div>
+  </div>
 
-      .button {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
+  <h1>아이콘 업로드</h1>
 
-      .button-primary {
-        background: #3182f6;
-        color: white;
-      }
+  <button id="export-btn" class="button">선택한 아이콘 Export</button>
 
-      .button-primary:hover {
-        background: #1b64da;
-      }
+  <div class="status hidden" id="status"></div>
 
-      .button-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
+  <div class="form-section hidden" id="form-section">
+    <label for="name">이름</label>
+    <input type="text" id="name" placeholder="icon/arrow/right" />
 
-      .button-secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
-      }
+    <label for="category">카테고리</label>
+    <select id="category">
+      <option value="">로딩 중...</option>
+    </select>
 
-      .button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+    <label for="tags">태그 (쉼표로 구분)</label>
+    <input type="text" id="tags" placeholder="arrow, right, navigation" />
 
-      .status {
-        padding: 12px;
-        border-radius: 6px;
-        font-size: 14px;
-        text-align: center;
-      }
+    <label for="svg">SVG 코드</label>
+    <textarea id="svg" readonly></textarea>
 
-      .status-success {
-        background: #e6f7ff;
-        color: #3182f6;
-      }
+    <label for="mode">모드</label>
+    <select id="mode">
+      <option value="AUTO">AUTO (기존 아이콘이 있으면 업데이트)</option>
+      <option value="FORCE_UPDATE">FORCE_UPDATE (강제 업데이트)</option>
+    </select>
 
-      .status-error {
-        background: #ffe6e6;
-        color: #f04452;
-      }
+    <button id="upload-btn" class="button" disabled>서버에 업로드</button>
+  </div>
 
-      .status-loading {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
-      }
+  <script>
+    // 블로그 글 패턴: parent.postMessage로 code.ts에 메시지 전송
+    document.getElementById("export-btn").onclick = () => {
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: "export-icon"
+          }
+        },
+        "*"
+      );
+    };
 
-      .hidden {
-        display: none;
-      }
+    // 블로그 글 패턴: window.addEventListener로 code.ts에서 메시지 수신
+    window.addEventListener("message", (event) => {
+      const msg = event.data.pluginMessage;
+      
+      if (!msg) return;
 
-      .preview {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.05);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 120px;
-      }
-
-      .preview svg {
-        max-width: 100%;
-        max-height: 100px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <div class="logo-container">
-        <img src="data:image/png;base64,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" alt="Fornerds Logo" class="logo-image" />
-        <div class="logo-text">Fornerds Icon</div>
-      </div>
-    </div>
-    <div class="container">
-      <h1>아이콘 업로드</h1>
-
-      <div class="section">
-        <button class="button button-primary" id="export-btn">
-          선택한 아이콘 Export
-        </button>
-      </div>
-
-      <div class="section hidden" id="form-section">
-        <div class="section-title">아이콘 정보</div>
-
-        <div class="preview" id="preview"></div>
-
-        <div>
-          <label for="name">이름</label>
-          <input type="text" id="name" placeholder="icon/arrow/right" />
-        </div>
-
-        <div>
-          <label for="category">카테고리</label>
-          <select id="category">
-            <option value="">로딩 중...</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="tags">태그 (쉼표로 구분)</label>
-          <input
-            type="text"
-            id="tags"
-            class="tags-input"
-            placeholder="arrow, right, navigation"
-          />
-        </div>
-
-        <div>
-          <label for="svg">SVG 코드</label>
-          <textarea id="svg" readonly></textarea>
-        </div>
-
-        <div>
-          <label for="mode">모드</label>
-          <select id="mode">
-            <option value="AUTO">AUTO (기존 아이콘이 있으면 업데이트)</option>
-            <option value="FORCE_UPDATE">FORCE_UPDATE (강제 업데이트)</option>
-          </select>
-        </div>
-
-        <button class="button button-primary" id="upload-btn" disabled>
-          서버에 업로드
-        </button>
-      </div>
-
-      <div class="status hidden" id="status"></div>
-    </div>
-
-    <script>
-      (function() {
-        'use strict';
+      if (msg.type === "icon-exported") {
+        const data = msg.data || {};
         
-        // API 설정 (환경에 맞게 수정 가능)
-        const API_BASE_URL = 'https://fornerds-icon-backend.vercel.app';
-        const API_URL = `${API_BASE_URL}/api/icons/from-figma`;
-        const CATEGORIES_URL = `${API_BASE_URL}/api/categories`;
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("svg").value = data.svg || "";
+        document.getElementById("form-section").classList.remove("hidden");
+        document.getElementById("upload-btn").disabled = false;
         
-        let API_TOKEN = '';
-        let currentSvg = '';
-        let categories = [];
-
-        // 상태 표시 함수 (먼저 정의)
-        function showStatus(message, type) {
-          try {
-            const statusEl = document.getElementById('status');
-            if (!statusEl) {
-              console.warn('Status element not found');
-              return;
-            }
-            
-            statusEl.textContent = message;
-            statusEl.className = `status status-${type}`;
-            statusEl.classList.remove('hidden');
-          } catch (error) {
-            console.error('showStatus error:', error);
-          }
-        }
-
-        function hideStatus() {
-          try {
-            const statusEl = document.getElementById('status');
-            if (statusEl) {
-              statusEl.classList.add('hidden');
-            }
-          } catch (error) {
-            console.error('hideStatus error:', error);
-          }
-        }
-
-        // 전역 에러 핸들러 (showStatus 정의 후)
-        window.addEventListener('error', (event) => {
-          console.error('Global error:', event.error);
-          try {
-            showStatus(`에러 발생: ${event.error?.message || '알 수 없는 오류'}`, 'error');
-          } catch (e) {
-            console.error('Error in error handler:', e);
-          }
-        });
-
-        // Promise rejection 핸들러
-        window.addEventListener('unhandledrejection', (event) => {
-          console.error('Unhandled promise rejection:', event.reason);
-          try {
-            showStatus(`에러 발생: ${event.reason?.message || '알 수 없는 오류'}`, 'error');
-          } catch (e) {
-            console.error('Error in rejection handler:', e);
-          }
-        });
-
-      // API Token 가져오기 (localStorage 안전하게 사용)
-      function getApiToken() {
-        try {
-          API_TOKEN = localStorage.getItem('figma_api_token') || '';
-          
-          // Token이 없으면 입력받기
-          if (!API_TOKEN) {
-            API_TOKEN = prompt('API Token을 입력하세요:\n(Vercel Dashboard → Backend → Environment Variables → API_TOKEN)') || '';
-            if (API_TOKEN) {
-              try {
-                localStorage.setItem('figma_api_token', API_TOKEN);
-              } catch (e) {
-                console.warn('localStorage 저장 실패:', e);
-              }
-            }
-          }
-        } catch (error) {
-          console.error('localStorage 접근 실패:', error);
-          API_TOKEN = prompt('API Token을 입력하세요:') || '';
-        }
-        return API_TOKEN;
+        showStatus("아이콘이 Export되었습니다!", "success");
+      } else if (msg.type === "error") {
+        showStatus("에러: " + (msg.message || "알 수 없는 오류"), "error");
       }
+    });
 
-      // 카테고리 목록 가져오기
-      async function loadCategories() {
-        try {
-          const categorySelect = document.getElementById('category');
-          if (!categorySelect) {
-            console.error('category select element not found');
-            return;
-          }
-          
-          categorySelect.innerHTML = '<option value="">로딩 중...</option>';
-          
-          const response = await fetch(CATEGORIES_URL, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          
-          const data = await response.json();
-          categories = Array.isArray(data) ? data : [];
-          
-          categorySelect.innerHTML = '<option value="">선택 안함</option>';
-          
-          if (categories.length > 0) {
-            categories.forEach((cat) => {
-              if (cat && cat.slug && cat.name) {
-                const option = document.createElement('option');
-                option.value = cat.slug;
-                option.textContent = cat.name;
-                categorySelect.appendChild(option);
-              }
-            });
-          } else {
-            categorySelect.innerHTML = '<option value="">카테고리 없음</option>';
-          }
-        } catch (error) {
-          console.error('Error loading categories:', error);
-          try {
-            const categorySelect = document.getElementById('category');
-            if (categorySelect) {
-              categorySelect.innerHTML = '<option value="">로딩 실패 (선택 안함)</option>';
-            }
-            showStatus(`카테고리 로딩 실패: ${error.message}`, 'error');
-          } catch (e) {
-            console.error('Error handling failed:', e);
-          }
-        }
+    function showStatus(message, type) {
+      const statusEl = document.getElementById("status");
+      if (statusEl) {
+        statusEl.textContent = message;
+        statusEl.className = "status " + (type ? "status-" + type : "");
+        statusEl.classList.remove("hidden");
       }
+    }
 
-      // DOM이 완전히 로드된 후 초기화
-      function initialize() {
-        try {
-          console.log('Initializing plugin UI...');
-          
-          // API Token 가져오기
-          getApiToken();
-
-          // 카테고리 로딩
-          loadCategories();
-
-          // 이벤트 리스너 설정
-          const exportBtn = document.getElementById('export-btn');
-          if (exportBtn) {
-            exportBtn.addEventListener('click', () => {
-              try {
-                parent.postMessage({ pluginMessage: { type: 'export-icon' } }, '*');
-              } catch (error) {
-                console.error('Export button error:', error);
-                showStatus('Export 버튼 오류: ' + error.message, 'error');
-              }
-            });
-          } else {
-            console.error('Export button not found');
-          }
-
-          const uploadBtn = document.getElementById('upload-btn');
-          if (uploadBtn) {
-            uploadBtn.addEventListener('click', handleUpload);
-          } else {
-            console.error('Upload button not found');
-          }
-          
-          console.log('Initialization complete');
-        } catch (error) {
-          console.error('Initialization error:', error);
-          showStatus(`초기화 실패: ${error.message}`, 'error');
-        }
-      }
-
-      // 업로드 핸들러
-      async function handleUpload() {
-        try {
-          const name = document.getElementById('name')?.value || '';
-          const category = document.getElementById('category')?.value || '';
-          const tagsInput = document.getElementById('tags')?.value || '';
-          const tags = tagsInput
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean);
-          const svg = currentSvg;
-          const mode = document.getElementById('mode')?.value || 'AUTO';
-
-          if (!name || !svg) {
-            showStatus('이름과 SVG는 필수입니다.', 'error');
-            return;
-          }
-
-          if (!API_TOKEN) {
-            showStatus('API Token이 설정되지 않았습니다. 페이지를 새로고침하여 입력해주세요.', 'error');
-            return;
-          }
-
-          showStatus('업로드 중...', 'loading');
-          const uploadBtn = document.getElementById('upload-btn');
-          if (uploadBtn) {
-            uploadBtn.disabled = true;
-          }
-
-          const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${API_TOKEN}`,
-            },
-            body: JSON.stringify({
-              name,
-              svg,
-              tags,
-              category: category || null,
-              mode,
-            }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
-            throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          showStatus(`성공! 아이콘이 업로드되었습니다. (ID: ${data.id})`, 'success');
-        } catch (error) {
-          console.error('Upload error:', error);
-          showStatus(`에러: ${error.message}`, 'error');
-        } finally {
-          const uploadBtn = document.getElementById('upload-btn');
-          if (uploadBtn) {
-            uploadBtn.disabled = false;
-          }
-        }
-      }
-
-      // 메시지 핸들러
-      window.onmessage = (event) => {
-        try {
-          const msg = event.data?.pluginMessage;
-          if (!msg) return;
-
-          if (msg.type === 'icon-exported') {
-            const { name, svg, nodeName } = msg.data || {};
-            if (!name || !svg) {
-              showStatus('Export 데이터가 올바르지 않습니다.', 'error');
-              return;
-            }
-
-            currentSvg = svg;
-
-            const nameInput = document.getElementById('name');
-            const svgTextarea = document.getElementById('svg');
-            const preview = document.getElementById('preview');
-            const formSection = document.getElementById('form-section');
-            const uploadBtn = document.getElementById('upload-btn');
-
-            if (nameInput) nameInput.value = name;
-            if (svgTextarea) svgTextarea.value = svg;
-            if (preview) preview.innerHTML = svg;
-            if (formSection) formSection.classList.remove('hidden');
-            if (uploadBtn) uploadBtn.disabled = false;
-            
-            hideStatus();
-          } else if (msg.type === 'error') {
-            showStatus(msg.message || '알 수 없는 오류', 'error');
-          }
-        } catch (error) {
-          console.error('Message handler error:', error);
-          showStatus(`메시지 처리 오류: ${error.message}`, 'error');
-        }
-      };
-
-      // 메시지 핸들러 (블로그 글 참고)
-      window.onmessage = (event) => {
-        try {
-          const msg = event.data?.pluginMessage;
-          if (!msg) return;
-
-          if (msg.type === 'icon-exported') {
-            const { name, svg, nodeName } = msg.data || {};
-            if (!name || !svg) {
-              showStatus('Export 데이터가 올바르지 않습니다.', 'error');
-              return;
-            }
-
-            currentSvg = svg;
-
-            const nameInput = document.getElementById('name');
-            const svgTextarea = document.getElementById('svg');
-            const preview = document.getElementById('preview');
-            const formSection = document.getElementById('form-section');
-            const uploadBtn = document.getElementById('upload-btn');
-
-            if (nameInput) nameInput.value = name;
-            if (svgTextarea) svgTextarea.value = svg;
-            if (preview) preview.innerHTML = svg;
-            if (formSection) formSection.classList.remove('hidden');
-            if (uploadBtn) uploadBtn.disabled = false;
-            
-            hideStatus();
-          } else if (msg.type === 'error') {
-            showStatus(msg.message || '알 수 없는 오류', 'error');
-          }
-        } catch (error) {
-          console.error('Message handler error:', error);
-          showStatus(`메시지 처리 오류: ${error.message}`, 'error');
-        }
-      };
-
-      // DOM이 준비되면 초기화
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize);
-      } else {
-        // DOM이 이미 로드된 경우 즉시 실행
-        initialize();
-      }
-    </script>
-  </body>
+    // 업로드 기능 (나중에 구현)
+    document.getElementById("upload-btn").onclick = () => {
+      showStatus("업로드 기능은 추후 구현 예정입니다.", "error");
+    };
+  </script>
+</body>
 </html>
-

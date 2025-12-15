@@ -1,8 +1,7 @@
 "use strict";
-// This plugin allows you to upload selected icons to the Fornerds Icon system
-// UI HTML will be loaded from ui.html file specified in manifest.json
-// Empty string allows manifest.json's "ui" field to be used
+// 블로그 글 패턴: figma.showUI로 UI 표시
 figma.showUI('', { width: 400, height: 600 });
+// 블로그 글 패턴: figma.ui.onmessage로 UI에서 메시지 수신
 figma.ui.onmessage = async (msg) => {
     if (msg.type === 'export-icon') {
         const selection = figma.currentPage.selection;
@@ -28,6 +27,7 @@ figma.ui.onmessage = async (msg) => {
             // 노드 이름에서 정보 추출
             const nodeName = node.name;
             const iconName = `icon/${nodeName.toLowerCase().replace(/\s+/g, '/')}`;
+            // 블로그 글 패턴: figma.ui.postMessage로 UI에 메시지 전송
             figma.ui.postMessage({
                 type: 'icon-exported',
                 data: {
