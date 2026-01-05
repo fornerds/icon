@@ -427,12 +427,17 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { name, svg, tags, category, mode } = req.body;
-      const slug = name.replace(/^icon\//, '').replace(/\//g, '-');
+      const { name, svg, tags, category, mode, size, property } = req.body;
+      const baseSlug = name.replace(/^icon\//, '').replace(/\//g, '-');
+      const iconSize = size || '24';
+      const iconProperty = property || 'outline';
       const userId = 1; // Figma plugin user
 
-      // 기존 아이콘 확인
-      const existingResult = await pool.query('SELECT * FROM icons WHERE slug = $1', [slug]);
+      // 기존 아이콘 확인 (name, size, property 조합으로)
+      const existingResult = await pool.query(
+        'SELECT * FROM icons WHERE name = $1 AND size = $2 AND property = $3 AND deleted_at IS NULL',
+        [name, iconSize, iconProperty]
+      );
       const existing = existingResult.rows[0];
 
       if (existing && mode !== 'FORCE_UPDATE') {
@@ -440,14 +445,14 @@ router.post(
         const newVersion = existing.latest_version + 1;
 
         await pool.query(
-          `UPDATE icons SET svg = $1, tags = $2, category = $3, latest_version = $4, updated_by = $5, updated_at = NOW() WHERE id = $6`,
-          [svg, JSON.stringify(tags || []), category || null, newVersion, userId, existing.id]
+          `UPDATE icons SET svg = $1, tags = $2, category = $3, latest_version = $4, updated_by = $5, updated_at = NOW(), size = $6, property = $7 WHERE id = $8`,
+          [svg, JSON.stringify(tags || []), category || null, newVersion, userId, iconSize, iconProperty, existing.id]
         );
 
         await pool.query(
-          `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
-           VALUES ($1, $2, $3, $4, $5, $6, 'UPDATE', $7)`,
-          [existing.id, newVersion, existing.name, svg, JSON.stringify(tags || []), category || null, userId]
+          `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, size, property, change_type, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'UPDATE', $9)`,
+          [existing.id, newVersion, existing.name, svg, JSON.stringify(tags || []), category || null, iconSize, iconProperty, userId]
         );
 
         const updatedResult = await pool.query('SELECT * FROM icons WHERE id = $1', [existing.id]);
@@ -462,18 +467,18 @@ router.post(
       } else {
         // 신규 생성
         const insertResult = await pool.query(
-          `INSERT INTO icons (name, slug, latest_version, svg, tags, category, created_by, updated_by)
-           VALUES ($1, $2, 1, $3, $4, $5, $6, $7)
+          `INSERT INTO icons (name, slug, latest_version, svg, tags, category, size, property, created_by, updated_by)
+           VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8, $9)
            RETURNING *`,
-          [name, slug, svg, JSON.stringify(tags || []), category || null, userId, userId]
+          [name, baseSlug, svg, JSON.stringify(tags || []), category || null, iconSize, iconProperty, userId, userId]
         );
 
         const iconId = insertResult.rows[0].id;
 
         await pool.query(
-          `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
-           VALUES ($1, 1, $2, $3, $4, $5, 'CREATE', $6)`,
-          [iconId, name, svg, JSON.stringify(tags || []), category || null, userId]
+          `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, size, property, change_type, created_by)
+           VALUES ($1, 1, $2, $3, $4, $5, $6, $7, 'CREATE', $8)`,
+          [iconId, name, svg, JSON.stringify(tags || []), category || null, iconSize, iconProperty, userId]
         );
 
         const newIcon = insertResult.rows[0];
@@ -495,12 +500,14 @@ router.post(
 router.get('/export/build', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, slug, svg, tags, category, is_deprecated FROM icons WHERE deleted_at IS NULL ORDER BY slug'
+      'SELECT id, name, slug, svg, tags, category, size, property, is_deprecated FROM icons WHERE deleted_at IS NULL ORDER BY name, size, property'
     );
     
     const parsedRows = result.rows.map(row => ({
       ...row,
       tags: parseTags(row.tags),
+      size: row.size || '24',
+      property: row.property || 'outline',
     }));
 
     res.json(parsedRows);
