@@ -15,3 +15,4 @@ function CategoryTag({ category, isActive, onClick }) {
 
 export default CategoryTag;
 
+

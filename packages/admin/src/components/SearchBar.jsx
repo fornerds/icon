@@ -17,3 +17,4 @@ function SearchBar({ value, onChange, placeholder = '검색...' }) {
 
 export default SearchBar;
 
+

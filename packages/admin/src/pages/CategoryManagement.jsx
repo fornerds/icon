@@ -219,3 +219,4 @@ function CategoryModal({ category, onClose, onSuccess }) {
 
 export default CategoryManagement;
 
+
