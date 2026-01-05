@@ -334,7 +334,17 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     res.json({ message: 'Icon deleted successfully' });
   } catch (error) {
     console.error('Error deleting icon:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      stack: error.stack,
+    });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.detail : undefined,
+    });
   }
 });
 
