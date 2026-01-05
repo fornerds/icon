@@ -121,7 +121,8 @@ function IconList() {
 function CreateIconModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
+    size: '',
+    property: '',
     svg: '',
     tags: '',
     category: '',
@@ -140,15 +141,6 @@ function CreateIconModal({ onClose, onSuccess }) {
     fetchCategories();
   }, []);
 
-  const fetchCategories = async () => {
-    try {
-      const { data } = await client.get('/categories');
-      setCategories(data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -157,7 +149,10 @@ function CreateIconModal({ onClose, onSuccess }) {
         .map((t) => t.trim())
         .filter(Boolean);
       await client.post('/icons', {
-        ...formData,
+        name: formData.name,
+        size: formData.size,
+        property: formData.property,
+        svg: formData.svg,
         tags,
         category: formData.category || null,
       });
@@ -181,25 +176,37 @@ function CreateIconModal({ onClose, onSuccess }) {
         <h3>새 아이콘 추가</h3>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>이름</label>
+            <label>이름 *</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="예: arrow-right"
               required
             />
           </div>
           <div className="form-group">
-            <label>Slug</label>
+            <label>Size *</label>
             <input
               type="text"
-              value={formData.slug}
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              value={formData.size}
+              onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+              placeholder="예: 24"
               required
             />
           </div>
           <div className="form-group">
-            <label>SVG</label>
+            <label>Property *</label>
+            <input
+              type="text"
+              value={formData.property}
+              onChange={(e) => setFormData({ ...formData, property: e.target.value })}
+              placeholder="예: outline"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>SVG *</label>
             <textarea
               value={formData.svg}
               onChange={(e) => setFormData({ ...formData, svg: e.target.value })}

@@ -116,7 +116,6 @@ router.post(
   authenticateToken,
   [
     body('name').notEmpty().withMessage('Name is required'),
-    body('slug').notEmpty().withMessage('Slug is required'),
     body('svg').notEmpty().withMessage('SVG is required'),
   ],
   async (req, res) => {
@@ -126,16 +125,33 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { name, slug, svg, tags, category } = req.body;
+      const { name, svg, tags, category, size, property } = req.body;
       const userId = req.user?.id || 1;
+      
+      // size와 property는 필수값
+      if (!size) {
+        return res.status(400).json({ error: 'Size is required' });
+      }
+      if (!property) {
+        return res.status(400).json({ error: 'Property is required' });
+      }
+      
+      const iconSize = size.toString();
+      const iconProperty = property.toString();
+      
+      // slug는 name 기반으로 자동 생성 (하위 호환성 유지)
+      const slug = name.replace(/^icon\//, '').replace(/\//g, '-');
 
-      console.log('📝 Creating icon:', { name, slug, category, tagsCount: tags?.length || 0 });
+      console.log('📝 Creating icon:', { name, size: iconSize, property: iconProperty, category, tagsCount: tags?.length || 0 });
 
-      // slug 중복 확인
-      const checkResult = await pool.query('SELECT id FROM icons WHERE slug = $1', [slug]);
+      // (name, size, property) 조합으로 중복 확인
+      const checkResult = await pool.query(
+        'SELECT id FROM icons WHERE name = $1 AND size = $2 AND property = $3 AND deleted_at IS NULL',
+        [name, iconSize, iconProperty]
+      );
 
       if (checkResult.rows.length > 0) {
-        return res.status(409).json({ error: 'Slug already exists' });
+        return res.status(409).json({ error: 'Icon with this name, size, and property already exists' });
       }
 
       // tags 처리: 이미 배열이면 그대로, 아니면 배열로 변환
@@ -156,19 +172,19 @@ router.post(
 
       // icons 테이블에 저장
       const insertResult = await pool.query(
-        `INSERT INTO icons (name, slug, latest_version, svg, tags, category, created_by, updated_by)
-         VALUES ($1, $2, 1, $3, $4, $5, $6, $7)
+        `INSERT INTO icons (name, slug, latest_version, svg, tags, category, size, property, created_by, updated_by)
+         VALUES ($1, $2, 1, $3, $4, $5, $6, $7, $8, $9)
          RETURNING *`,
-        [name, slug, svg, tagsJson, categoryValue, userId, userId]
+        [name, slug, svg, tagsJson, categoryValue, iconSize, iconProperty, userId, userId]
       );
 
       const iconId = insertResult.rows[0].id;
 
       // icon_versions 테이블에 이력 저장
       await pool.query(
-        `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
-         VALUES ($1, 1, $2, $3, $4, $5, 'CREATE', $6)`,
-        [iconId, name, svg, tagsJson, categoryValue, userId]
+        `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, size, property, change_type, created_by)
+         VALUES ($1, 1, $2, $3, $4, $5, $6, $7, 'CREATE', $8)`,
+        [iconId, name, svg, tagsJson, categoryValue, iconSize, iconProperty, userId]
       );
 
       const newIcon = insertResult.rows[0];
