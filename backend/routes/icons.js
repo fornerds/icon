@@ -267,8 +267,8 @@ router.patch(
 
       // icon_versions 테이블에 이력 저장
       await pool.query(
-        `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, 'UPDATE', $7)`,
+        `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, size, property, change_type, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'UPDATE', $9)`,
         [
           req.params.id,
           newVersion,
@@ -276,6 +276,8 @@ router.patch(
           svg || currentIcon.svg,
           JSON.stringify(tags !== undefined ? tags : (currentIcon.tags ? (Array.isArray(currentIcon.tags) ? currentIcon.tags : parseTags(currentIcon.tags)) : [])),
           category !== undefined ? category : currentIcon.category,
+          currentIcon.size || '24',
+          currentIcon.property || 'outline',
           userId
         ]
       );
@@ -314,8 +316,8 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     // 이력 저장
     await pool.query(
-      `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, 'DELETE', $7)`,
+      `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, size, property, change_type, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'DELETE', $9)`,
       [
         req.params.id,
         currentIcon.latest_version,
@@ -323,6 +325,8 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         currentIcon.svg,
         currentIcon.tags,
         currentIcon.category,
+        currentIcon.size || '24',
+        currentIcon.property || 'outline',
         userId
       ]
     );
@@ -352,8 +356,8 @@ router.patch('/:id/restore', authenticateToken, async (req, res) => {
 
     // 이력 저장
     await pool.query(
-      `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, 'RESTORE', $7)`,
+      `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, size, property, change_type, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'RESTORE', $9)`,
       [
         req.params.id,
         currentIcon.latest_version,
@@ -361,6 +365,8 @@ router.patch('/:id/restore', authenticateToken, async (req, res) => {
         currentIcon.svg,
         currentIcon.tags,
         currentIcon.category,
+        currentIcon.size || '24',
+        currentIcon.property || 'outline',
         userId
       ]
     );
@@ -400,8 +406,8 @@ router.patch('/:id/deprecate', authenticateToken, async (req, res) => {
 
     // 이력 저장
     await pool.query(
-      `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, change_type, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, 'DEPRECATE', $7)`,
+      `INSERT INTO icon_versions (icon_id, version, name, svg, tags, category, size, property, change_type, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'DEPRECATE', $9)`,
       [
         req.params.id,
         currentIcon.latest_version,
@@ -409,6 +415,8 @@ router.patch('/:id/deprecate', authenticateToken, async (req, res) => {
         currentIcon.svg,
         currentIcon.tags,
         currentIcon.category,
+        currentIcon.size || '24',
+        currentIcon.property || 'outline',
         userId
       ]
     );
